@@ -1,0 +1,24 @@
+{
+  "name": "wedding-host-manager",
+  "version": "1.0.0",
+  "description": "专业婚礼主持人单机工作平台 - 档期管理、客户信息、婚礼策划一站式解决方案",
+  "main": "index.html",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "build": "echo 'No build step needed for static site'",
+    "serve": "node server.js"
+  },
+  "keywords": [
+    "wedding",
+    "host",
+    "manager",
+    "wedding-planner",
+    "wedding-host"
+  ],
+  "author": "Wedding Host Manager Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
