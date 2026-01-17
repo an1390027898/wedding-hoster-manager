@@ -75,6 +75,17 @@
             font-size: 0.95rem;
         }
         
+        /* 汉堡菜单样式 */
+        .mobile-nav-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: white;
+            cursor: pointer;
+            padding: 5px;
+        }
+        
         /* 导航样式 */
         .app-nav {
             display: flex;
@@ -83,6 +94,7 @@
             overflow: hidden;
             margin-bottom: 20px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
         }
         
         .nav-item {
@@ -648,6 +660,10 @@
         
         /* 响应式调整 */
         @media (max-width: 768px) {
+            .mobile-nav-toggle {
+                display: block;
+            }
+            
             .app-container {
                 padding: 10px;
             }
@@ -656,17 +672,42 @@
                 padding: 15px;
             }
             
+            .app-title {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
             .app-title h1 {
                 font-size: 1.4rem;
             }
             
             .app-nav {
+                display: none;
                 flex-direction: column;
+                position: absolute;
+                top: 120px;
+                left: 10px;
+                right: 10px;
+                background: white;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                z-index: 1000;
+            }
+            
+            .app-nav.active {
+                display: flex;
             }
             
             .nav-item {
-                padding: 12px;
-                font-size: 0.9rem;
+                padding: 15px 20px;
+                font-size: 1rem;
+                text-align: left;
+                border-bottom: 1px solid #f0f0f0;
+            }
+            
+            .nav-item:last-child {
+                border-bottom: none;
             }
             
             .form-row, .form-row-3 {
@@ -675,17 +716,39 @@
             
             .calendar-grid {
                 grid-template-columns: repeat(7, 1fr);
+                font-size: 0.75rem;
+                gap: 1px;
+            }
+            
+            .calendar-header {
                 font-size: 0.8rem;
+                padding: 8px 2px;
             }
             
             .calendar-day {
-                min-height: 80px;
-                padding: 5px;
+                min-height: 60px;
+                padding: 3px;
+                font-size: 0.8rem;
             }
             
             .event-indicator {
-                font-size: 0.7rem;
-                padding: 1px 4px;
+                font-size: 0.65rem;
+                padding: 1px 3px;
+                margin: 1px 0;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            
+            .calendar-nav {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+            
+            .calendar-nav .btn {
+                width: 100%;
+                justify-content: center;
             }
             
             .event-list-item {
@@ -1520,6 +1583,139 @@
             font-size: 0.7rem;
         }
         
+        /* 移动端表单和按钮优化 */
+        @media (max-width: 768px) {
+            /* 优化表单元素大小 */
+            form .form-control {
+                padding: 15px;
+                font-size: 1.1rem;
+                border-radius: 8px;
+            }
+            
+            form .form-label {
+                font-size: 1rem;
+                margin-bottom: 10px;
+            }
+            
+            /* 优化选择框样式 */
+            select.form-control {
+                background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+                background-repeat: no-repeat;
+                background-position: right 15px center;
+                background-size: 20px;
+                padding-right: 45px;
+            }
+            
+            /* 优化移动端按钮大小 */
+            .btn {
+                padding: 12px 24px;
+                font-size: 1.1rem;
+                border-radius: 8px;
+            }
+            
+            .btn-small {
+                padding: 8px 16px;
+                font-size: 0.95rem;
+            }
+            
+            /* 优化卡片间距 */
+            .card {
+                margin-bottom: 15px;
+                border-radius: 8px;
+            }
+            
+            /* 优化模态框 */
+            .modal-content {
+                width: 95%;
+                max-height: 95vh;
+                border-radius: 10px;
+            }
+            
+            /* 优化文本区域 */
+            textarea.form-control {
+                min-height: 150px;
+                resize: vertical;
+            }
+            
+            /* 优化工具栏 */
+            .toolbar {
+                gap: 10px;
+            }
+            
+            /* 优化列表项 */
+            .event-list-item, .client-list-item, .music-list-item {
+                padding: 15px;
+                gap: 15px;
+            }
+            
+            /* 音乐管理模块移动端优化 */
+            /* 优化遥控器按钮大小和间距 */
+            .remote-control-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+            
+            .remote-control-panel {
+                gap: 8px;
+                margin: 15px 0;
+            }
+            
+            /* 优化播放列表 */
+            .session-playlist {
+                max-height: 300px !important;
+                font-size: 0.9rem;
+            }
+            
+            .playlist-item {
+                padding: 10px;
+                gap: 10px;
+            }
+            
+            /* 优化音乐分类标签 */
+            .music-category-tag {
+                padding: 6px 12px;
+                font-size: 0.85rem;
+                margin: 3px 0;
+            }
+            
+            /* 优化音乐视图切换 */
+            .music-view-toggle {
+                flex-direction: column;
+                width: 100%;
+                margin: 10px 0;
+            }
+            
+            .music-view-btn {
+                width: 100%;
+                padding: 10px;
+                justify-content: center;
+            }
+            
+            /* 优化本地音乐上传区域 */
+            .file-upload-area {
+                padding: 20px 15px;
+            }
+            
+            /* 优化场次控制按钮 */
+            .session-controls {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+            
+            .session-controls .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            /* 优化场次选择框 */
+            .session-select {
+                width: 100%;
+                margin-bottom: 8px;
+            }
+        }
+        
         /* 优化：问卷分享链接样式 */
         .share-link-container {
             background-color: #f0f7ff;
@@ -1814,14 +2010,58 @@
         @media (max-width: 768px) {
             .toolkit-nav {
                 flex-direction: column;
+                gap: 5px;
+            }
+            
+            .toolkit-nav button {
+                padding: 12px;
+                font-size: 0.95rem;
             }
             
             .lines-categories, .contracts-list, .games-list, .speeches-list {
                 grid-template-columns: 1fr;
+                gap: 10px;
             }
             
             .form-row {
                 grid-template-columns: 1fr;
+            }
+            
+            /* 优化主持人工具箱的卡片样式 */
+            .toolkit-section {
+                margin-bottom: 15px;
+            }
+            
+            .toolkit-section h4 {
+                font-size: 1.1rem;
+                margin-bottom: 15px;
+            }
+            
+            /* 优化环节规划模块 */
+            .planning-toolbar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+            
+            .planning-toolbar .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            /* 优化时间轴步骤 */
+            .timeline-step {
+                padding: 12px;
+                font-size: 0.9rem;
+            }
+            
+            .step-content {
+                gap: 8px;
+            }
+            
+            /* 优化时间编辑模态框 */
+            .time-edit-modal .form-group {
+                margin-bottom: 15px;
             }
         }
     </style>
@@ -1849,7 +2089,10 @@
         </header>
         
         <!-- 导航菜单 -->
-        <nav class="app-nav">
+        <button class="mobile-nav-toggle" id="mobileNavToggle">
+            <i class="fas fa-bars"></i>
+        </button>
+        <nav class="app-nav" id="appNav">
             <div class="nav-item active" data-tab="calendar">
                 <i class="fas fa-calendar-alt"></i> 档期管理
             </div>
@@ -9653,6 +9896,25 @@
         function initApp() {
             // 初始化数据
             initData();
+            
+            // 初始化汉堡菜单
+            const mobileNavToggle = document.getElementById('mobileNavToggle');
+            const appNav = document.getElementById('appNav');
+            const navItems = document.querySelectorAll('.nav-item');
+            
+            if (mobileNavToggle && appNav) {
+                // 展开/收起菜单
+                mobileNavToggle.addEventListener('click', function() {
+                    appNav.classList.toggle('active');
+                });
+                
+                // 点击导航项后关闭菜单
+                navItems.forEach(item => {
+                    item.addEventListener('click', function() {
+                        appNav.classList.remove('active');
+                    });
+                });
+            }
             
             // 设置导航
             setupNavigation();
