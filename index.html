@@ -4240,9 +4240,9 @@
             <div class="modal-body">
                 <div class="form-group">
                     <label class="form-label">选择问卷文件</label>
-                    <input type="file" class="form-control" id="questionnaireFileInput" accept=".json">
+                    <input type="file" class="form-control" id="questionnaireFileInput" accept=".json,.doc,.docx,.txt">
                     <small class="form-text" style="color: var(--gray); font-size: 0.85rem;">
-                        选择客户填写后导出的问卷答案文件 (.json格式)
+                        选择客户填写后导出的问卷答案文件 (.json, .doc, .docx, .txt格式)
                     </small>
                 </div>
                 
@@ -6106,11 +6106,19 @@
                 }
                 
                 // 添加环节规划
+                // 查找客户相关的自定义环节
+                const clientCustomSteps = AppState.customSteps.filter(step => step.clientId === clientId);
+                
+                html += `
+                    <div class="summary-section" style="margin-bottom: 30px; padding: 15px; background-color: #f8f9fa; border-radius: 8px;">
+                        <h5 style="margin-bottom: 15px;"><i class="fas fa-calendar-check"></i> 环节规划</h5>
+                `;
+                
+                // 显示事件
                 if (clientEvents && clientEvents.length > 0) {
                     html += `
-                        <div class="summary-section" style="margin-bottom: 30px; padding: 15px; background-color: #f8f9fa; border-radius: 8px;">
-                            <h5 style="margin-bottom: 15px;"><i class="fas fa-calendar-check"></i> 环节规划</h5>
-                            <div style="max-height: 300px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 4px; padding: 15px;">
+                        <h6 style="margin-bottom: 10px; color: var(--secondary);">相关事件</h6>
+                        <div style="max-height: 200px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 4px; padding: 15px; margin-bottom: 20px;">
                     `;
                     
                     clientEvents.forEach(event => {
@@ -6125,15 +6133,36 @@
                         `;
                     });
                     
-                    html += `</div></div>`;
-                } else {
-                    html += `
-                        <div class="summary-section" style="margin-bottom: 30px; padding: 15px; background-color: #f8f9fa; border-radius: 8px;">
-                            <h5 style="margin-bottom: 15px;"><i class="fas fa-calendar-check"></i> 环节规划</h5>
-                            <div style="color: #6c757d;">尚未创建环节规划</div>
-                        </div>
-                    `;
+                    html += `</div>`;
                 }
+                
+                // 显示自定义环节
+                if (clientCustomSteps && clientCustomSteps.length > 0) {
+                    html += `
+                        <h6 style="margin-bottom: 10px; color: var(--secondary);">自定义环节</h6>
+                        <div style="max-height: 200px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 4px; padding: 15px;">
+                    `;
+                    
+                    clientCustomSteps.forEach(step => {
+                        html += `
+                            <div style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #dee2e6;">
+                                <h6>${step.name}</h6>
+                                ${step.time ? `<p style="margin: 5px 0;">时间：${step.time}</p>` : ''}
+                                ${step.duration ? `<p style="margin: 5px 0;">时长：约${step.duration}分钟</p>` : ''}
+                                ${step.description ? `<p style="margin: 5px 0;">描述：${step.description}</p>` : ''}
+                            </div>
+                        `;
+                    });
+                    
+                    html += `</div>`;
+                }
+                
+                // 如果没有任何环节规划
+                if ((!clientEvents || clientEvents.length === 0) && (!clientCustomSteps || clientCustomSteps.length === 0)) {
+                    html += `<div style="color: #6c757d;">尚未创建环节规划</div>`;
+                }
+                
+                html += `</div>`;
                 
                 html += `</div>`;
                 
@@ -7188,15 +7217,43 @@
                 const file = e.target.files[0];
                 if (!file) return;
                 
+                const fileExtension = file.name.split('.').pop().toLowerCase();
                 const reader = new FileReader();
                 reader.onload = function(event) {
                     try {
-                        importData = JSON.parse(event.target.result);
+                        let parsedData = null;
                         
-                        // 验证数据格式
-                        if (!importData.questionnaireId || !importData.answers) {
-                            throw new Error('数据格式不正确');
+                        if (fileExtension === 'json') {
+                            // JSON格式处理
+                            parsedData = JSON.parse(event.target.result);
+                            
+                            // 验证数据格式
+                            if (!parsedData.questionnaireId || !parsedData.answers) {
+                                throw new Error('JSON数据格式不正确');
+                            }
+                        } else if (fileExtension === 'txt') {
+                            // TXT格式处理
+                            const textContent = event.target.result;
+                            parsedData = parseTxtQuestionnaire(textContent);
+                        } else if (fileExtension === 'doc' || fileExtension === 'docx') {
+                            // DOC/DOCX格式处理
+                            // 由于浏览器限制，我们只能简单处理
+                            // 显示提示信息，告知用户DOC/DOCX文件的限制
+                            alert('DOC/DOCX文件格式支持有限，建议使用TXT或JSON格式');
+                            // 使用文本解析逻辑，但添加错误处理
+                            try {
+                                // 对于ArrayBuffer，我们无法直接解析为文本
+                                // 显示更友好的提示信息
+                                alert('DOC/DOCX文件需要特殊处理，当前版本仅支持基本文本提取。建议将DOC/DOCX转换为TXT或JSON格式后再导入。');
+                                parsedData = { questionnaireId: 'imported-questionnaire-' + Date.now(), answers: {} };
+                            } catch (e) {
+                                throw new Error('DOC/DOCX文件处理失败，请尝试使用其他格式');
+                            }
+                        } else {
+                            throw new Error('不支持的文件格式');
                         }
+                        
+                        importData = parsedData;
                         
                         // 显示预览
                         let previewHtml = '<ul>';
@@ -7208,13 +7265,50 @@
                         previewContent.innerHTML = previewHtml;
                         preview.style.display = 'block';
                     } catch (error) {
-                        alert('导入失败：数据文件格式不正确或已损坏');
+                        alert('导入失败：数据文件格式不正确或已损坏\n' + error.message);
                         console.error(error);
                     }
                 };
                 
-                reader.readAsText(file);
+                if (fileExtension === 'doc' || fileExtension === 'docx') {
+                    reader.readAsArrayBuffer(file);
+                } else {
+                    reader.readAsText(file);
+                }
             });
+            
+            // 解析TXT格式问卷答案
+            function parseTxtQuestionnaire(textContent) {
+                // 简单的解析逻辑：每行一个问题和答案，格式为"问题ID: 答案内容"
+                const lines = textContent.split('\n');
+                const answers = {};
+                let questionnaireId = 'imported-questionnaire-' + Date.now();
+                
+                lines.forEach((line, index) => {
+                    line = line.trim();
+                    if (line) {
+                        // 查找第一个冒号作为分隔符
+                        const colonIndex = line.indexOf(':');
+                        if (colonIndex !== -1) {
+                            const questionId = line.substring(0, colonIndex).trim();
+                            const answer = line.substring(colonIndex + 1).trim();
+                            answers[questionId] = answer;
+                        } else {
+                            // 如果没有冒号，使用行号作为问题ID
+                            answers[`q${index + 1}`] = line;
+                        }
+                    }
+                });
+                
+                if (Object.keys(answers).length === 0) {
+                    throw new Error('未找到有效的问题和答案');
+                }
+                
+                return {
+                    questionnaireId: questionnaireId,
+                    answers: answers
+                };
+            }
             
             // 确认导入
             confirmBtn.addEventListener('click', function() {
@@ -7499,36 +7593,48 @@
                     const container = document.getElementById('customQuestionsContainer');
                     if (!container) return;
                     
-                    const index = container.querySelectorAll('.question-item').length;
-                    const html = `
-                        <div class="question-item" data-index="${index}">
-                            <div class="form-row">
-                                <div class="form-group" style="flex: 1;">
-                                    <label class="form-label">问题 ${index + 1}</label>
-                                    <input type="text" class="form-control question-text" placeholder="输入问题">
-                                </div>
-                                <div class="form-group" style="width: 150px;">
-                                    <label class="form-label">类型</label>
-                                    <select class="form-control question-type">
-                                        <option value="text">单行文本</option>
-                                        <option value="textarea">多行文本</option>
-                                    </select>
-                                </div>
-                                <div class="form-group" style="display: flex; align-items: flex-end;">
-                                    <button type="button" class="btn btn-danger btn-small remove-question" style="margin-bottom: 10px;">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
+                    const questionCount = container.children.length + 1;
+                    
+                    const questionHtml = `
+                        <div class="custom-question-item">
+                            <div class="custom-question-header">
+                                <input type="text" class="form-control question-text" placeholder="问题${questionCount}：请输入问题内容">
+                                <select class="question-type-select">
+                                    <option value="text">文本</option>
+                                    <option value="textarea">长文本</option>
+                                    <option value="select">单选</option>
+                                    <option value="checkbox">多选</option>
+                                </select>
+                                <button type="button" class="btn btn-small btn-secondary remove-question">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="question-options" style="display: none;">
+                                <input type="text" class="form-control" placeholder="选项，用逗号分隔（例如：选项1,选项2,选项3）" style="margin-top: 10px;">
                             </div>
                         </div>
                     `;
                     
-                    container.insertAdjacentHTML('beforeend', html);
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = questionHtml;
+                    const newQuestion = tempDiv.firstElementChild;
+                    container.appendChild(newQuestion);
                     
-                    // 添加删除事件
-                    const newQuestion = container.lastElementChild;
-                    newQuestion.querySelector('.remove-question').addEventListener('click', function() {
-                        newQuestion.remove();
+                    // 添加删除按钮事件
+                    const removeBtn = newQuestion.querySelector('.remove-question');
+                    removeBtn.addEventListener('click', function() {
+                        this.closest('.custom-question-item').remove();
+                    });
+                    
+                    // 添加问题类型变化事件
+                    const typeSelect = newQuestion.querySelector('.question-type-select');
+                    typeSelect.addEventListener('change', function() {
+                        const optionsDiv = this.closest('.custom-question-item').querySelector('.question-options');
+                        if (this.value === 'select' || this.value === 'checkbox') {
+                            optionsDiv.style.display = 'block';
+                        } else {
+                            optionsDiv.style.display = 'none';
+                        }
                     });
                 });
             }
@@ -7551,10 +7657,11 @@
                     
                     // 收集问题
                     const questions = [];
-                    const questionItems = document.querySelectorAll('.question-item');
+                    const questionItems = document.querySelectorAll('.question-item, .custom-question-item');
                     questionItems.forEach((item, index) => {
                         const text = item.querySelector('.question-text').value.trim();
-                        const type = item.querySelector('.question-type').value;
+                        const typeSelect = item.querySelector('.question-type, .question-type-select');
+                        const type = typeSelect ? typeSelect.value : 'text';
                         if (text) {
                             questions.push({
                                 id: `q${index + 1}`,
@@ -7942,7 +8049,28 @@
         function setupPlanning() {
             // 添加自定义环节按钮
             document.getElementById('addCustomStepBtn').addEventListener('click', function() {
-                openCustomStepModal();
+                // 获取当前选中的客户ID（从客户选择输入框中获取）
+                const clientIdInput = document.getElementById('clientId');
+                const clientId = clientIdInput ? clientIdInput.value : '';
+                
+                // 直接添加空白环节到时间轴
+                const newStep = {
+                    id: `custom-step-${Date.now()}`,
+                    name: '新环节',
+                    time: '',
+                    duration: 10,
+                    description: '',
+                    clientId: clientId
+                };
+                
+                // 添加到状态中
+                AppState.customSteps.push(newStep);
+                
+                // 保存数据
+                saveData();
+                
+                // 重新渲染
+                renderCustomSteps();
             });
             
             // 保存时间轴按钮
@@ -7972,7 +8100,6 @@
             
             // 清空时间轴（保留标准环节结构）
             const standardSteps = timelineContainer.querySelectorAll('.timeline-item[data-step-type="standard"]');
-            const customStepsHtml = customStepsContainer.innerHTML;
             
             // 重新构建时间轴
             timelineContainer.innerHTML = '';
@@ -7985,7 +8112,55 @@
             // 添加自定义环节容器
             const containerDiv = document.createElement('div');
             containerDiv.id = 'customStepsContainer';
-            containerDiv.innerHTML = customStepsHtml;
+            
+            // 渲染当前客户的自定义环节
+            // 获取当前选中的客户
+            const planClientSearchInput = document.getElementById('planClientSearchInput');
+            const currentClientName = planClientSearchInput ? planClientSearchInput.value : '';
+            
+            // 查找当前选中客户的ID
+            let currentClientId = null;
+            if (currentClientName) {
+                const client = AppState.clients.find(c => 
+                    `${c.groomName} & ${c.brideName}` === currentClientName
+                );
+                if (client) {
+                    currentClientId = client.id;
+                }
+            }
+            
+            // 筛选出当前客户的环节
+            const stepsToRender = currentClientId 
+                ? AppState.customSteps.filter(step => step.clientId === currentClientId)
+                : [];
+            
+            // 生成自定义环节HTML
+            if (stepsToRender.length > 0) {
+                let html = '';
+                stepsToRender.forEach(step => {
+                    html += `
+                        <div class="custom-timeline-item" data-step-id="${step.id}" data-step-type="custom">
+                            <div class="custom-timeline-content">
+                                <div>
+                                    <h4>${step.name}</h4>
+                                    ${step.time ? `<div style="color: var(--info); font-weight: 500; margin-bottom: 5px;">${step.time}${step.duration ? ` (约${step.duration}分钟)` : ''}</div>` : ''}
+                                    <p>${step.description}</p>
+                                </div>
+                                <div class="custom-timeline-actions">
+                                    <button class="btn btn-small btn-secondary" onclick="editCustomStep('${step.id}')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-small btn-secondary" onclick="deleteCustomStep('${step.id}')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                containerDiv.innerHTML = html;
+            }
+            
             timelineContainer.appendChild(containerDiv);
             
             // 重新设置拖拽功能
@@ -8350,14 +8525,34 @@
         function renderCustomSteps() {
             const container = document.getElementById('customStepsContainer');
             
-            if (AppState.customSteps.length === 0) {
+            // 获取当前选中的客户
+            const planClientSearchInput = document.getElementById('planClientSearchInput');
+            const currentClientName = planClientSearchInput ? planClientSearchInput.value : '';
+            
+            // 查找当前选中客户的ID
+            let currentClientId = null;
+            if (currentClientName) {
+                const client = AppState.clients.find(c => 
+                    `${c.groomName} & ${c.brideName}` === currentClientName
+                );
+                if (client) {
+                    currentClientId = client.id;
+                }
+            }
+            
+            // 筛选出当前客户的环节，或者所有环节（如果没有选中客户）
+            const stepsToRender = currentClientId 
+                ? AppState.customSteps.filter(step => step.clientId === currentClientId)
+                : AppState.customSteps;
+            
+            if (stepsToRender.length === 0) {
                 container.innerHTML = '';
                 return;
             }
             
             let html = '';
             
-            AppState.customSteps.forEach(step => {
+            stepsToRender.forEach(step => {
                 // 获取关联客户信息
                 let clientInfo = '';
                 if (step.clientId) {
