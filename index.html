@@ -2566,7 +2566,7 @@
             <div class="tab-content active" id="calendar-tab">
                 <div class="toolbar">
                     <h2 class="toolbar-title">档期管理</h2>
-                    <div style="display: flex; align-items: center;">
+                    <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 8px; width: 100%;">
                         <div class="view-toggle">
                             <button class="view-btn active" data-view="calendar">
                                 <i class="fas fa-calendar-alt"></i> 日历视图
@@ -2575,7 +2575,7 @@
                                 <i class="fas fa-list"></i> 列表视图
                             </button>
                         </div>
-                        <div class="year-toggle" style="margin-left: 15px;">
+                        <div class="year-toggle">
                             <button class="year-btn active" data-year="current">
                                 本年
                             </button>
@@ -2583,7 +2583,7 @@
                                 往年记录
                             </button>
                         </div>
-                        <button class="btn btn-primary" id="addEventBtn" style="margin-left: 15px;">
+                        <button class="btn btn-primary btn-small" id="addEventBtn" style="margin-left: auto;">
                             <i class="fas fa-plus"></i> 添加档期
                         </button>
                     </div>
@@ -2728,28 +2728,9 @@
                             </div>
                             <div class="client-search-results" id="clientsSearchResults"></div>
                         </div>
-                        <button class="btn btn-primary" id="addClientBtn">
+                        <button class="btn btn-primary btn-small" id="addClientBtn">
                             <i class="fas fa-plus"></i> 添加客户
                         </button>
-                    </div>
-                </div>
-                
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-value" id="totalClients">0</div>
-                        <div class="stat-label">总客户数</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="totalRevenue">¥0</div>
-                        <div class="stat-label">总收入</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="avgFee">¥0</div>
-                        <div class="stat-label">平均费用</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="paidClients">0</div>
-                        <div class="stat-label">已付款客户</div>
                     </div>
                 </div>
                 
@@ -2763,52 +2744,72 @@
                         <p>点击上方"添加客户"按钮开始记录</p>
                     </div>
                 </div>
+                
+                <!-- 统计卡片移到客户数据下方 -->
+                <div class="stats-grid" style="margin-top: 20px; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px;">
+                    <div class="stat-card" style="padding: 8px; border-radius: 4px; font-size: 0.9rem;">
+                        <div class="stat-value" id="totalClients" style="font-size: 1.2rem;">0</div>
+                        <div class="stat-label" style="font-size: 0.7rem;">总客户数</div>
+                    </div>
+                    <div class="stat-card" style="padding: 8px; border-radius: 4px; font-size: 0.9rem;">
+                        <div class="stat-value" id="totalRevenue" style="font-size: 1.2rem;">¥0</div>
+                        <div class="stat-label" style="font-size: 0.7rem;">总收入</div>
+                    </div>
+                    <div class="stat-card" style="padding: 8px; border-radius: 4px; font-size: 0.9rem;">
+                        <div class="stat-value" id="avgFee" style="font-size: 1.2rem;">¥0</div>
+                        <div class="stat-label" style="font-size: 0.7rem;">平均费用</div>
+                    </div>
+                    <div class="stat-card" style="padding: 8px; border-radius: 4px; font-size: 0.9rem;">
+                        <div class="stat-value" id="paidClients" style="font-size: 1.2rem;">0</div>
+                        <div class="stat-label" style="font-size: 0.7rem;">已付款客户</div>
+                    </div>
+                </div>
             </div>
             
             <!-- 婚礼问卷页面 -->
             <div class="tab-content" id="questionnaire-tab">
                 <div class="toolbar">
                     <h2 class="toolbar-title">婚礼问卷</h2>
-                    <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                         <!-- 优化：客户选择搜索框 -->
-                        <div class="client-search-container" style="width: 300px;">
+                        <div class="client-search-container" style="width: 250px; flex-shrink: 1;">
                             <div class="search-box">
                                 <i class="fas fa-search search-icon"></i>
                                 <input type="text" class="form-control" id="clientSearchInput" placeholder="搜索客户..." autocomplete="off">
                             </div>
                             <div class="client-search-results" id="clientSearchResults"></div>
                         </div>
-                        <button class="btn btn-info" id="manageTemplatesBtn">
+                        <button class="btn btn-info btn-small" id="manageTemplatesBtn">
                             <i class="fas fa-cog"></i> 模板管理
                         </button>
-                        <button class="btn btn-primary" id="newQuestionnaireBtn">
+                        <button class="btn btn-primary btn-small" id="newQuestionnaireBtn">
                             <i class="fas fa-file-alt"></i> 新建问卷
                         </button>
                         <!-- 新增：问卷操作按钮 -->
-                        <button class="btn btn-secondary" id="editQuestionnaireBtn" style="display: none;">
+                        <button class="btn btn-secondary btn-small" id="editQuestionnaireBtn" style="display: none;">
                             <i class="fas fa-edit"></i> 编辑问卷
                         </button>
-                        <button class="btn btn-warning" id="deleteQuestionnaireBtn" style="display: none;">
+                        <button class="btn btn-warning btn-small" id="deleteQuestionnaireBtn" style="display: none;">
                             <i class="fas fa-trash"></i> 删除问卷
                         </button>
-                        <button class="btn btn-success" id="shareQuestionnaireBtn" style="display: none;">
+                        <button class="btn btn-success btn-small" id="shareQuestionnaireBtn" style="display: none;">
                             <i class="fas fa-share-alt"></i> 分享问卷
                         </button>
-                        <button class="btn btn-secondary" id="importQuestionnaireBtnGlobal">
+                        <button class="btn btn-secondary btn-small" id="importQuestionnaireBtnGlobal">
                             <i class="fas fa-file-import"></i> 导入问卷
                         </button>
                     </div>
                 </div>
                 
                 <!-- 问卷模板选择 -->
-                <div class="card" id="templateSelectionCard">
-                    <div class="card-header">
-                        <h3 class="card-title">选择问卷模板</h3>
+                <div class="card" id="templateSelectionCard" style="padding: 15px; margin-bottom: 15px;">
+                    <div class="card-header" style="padding-bottom: 8px; margin-bottom: 8px;">
+                        <h3 class="card-title" style="font-size: 1.1rem;">选择问卷模板</h3>
                         <span class="badge badge-primary">专业版</span>
                     </div>
-                    <p>选择适合的问卷模板开始填写，您也可以创建自定义模板。</p>
+                    <p style="font-size: 0.9rem; margin-bottom: 10px;">选择适合的问卷模板开始填写，您也可以创建自定义模板。</p>
                     
-                    <div class="questionnaire-templates" id="questionnaireTemplates">
+                    <div class="questionnaire-templates" id="questionnaireTemplates" style="grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px;">
                         <!-- 问卷模板将通过JS动态生成 -->
                     </div>
                 </div>
