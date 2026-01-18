@@ -563,13 +563,31 @@
         }
         
         .event-list-item {
-            padding: 15px;
+            padding: 10px 15px;
             border-bottom: 1px solid #eee;
             display: grid;
-            grid-template-columns: 100px 100px 1fr 150px 150px;
-            gap: 15px;
+            grid-template-columns: 80px 80px 1fr 120px 120px;
+            gap: 10px;
             align-items: center;
             transition: background-color 0.2s;
+            font-size: 0.9rem;
+        }
+        
+        .event-list-item .event-list-title {
+            font-size: 0.95rem;
+        }
+        
+        .event-list-item .event-list-location {
+            font-size: 0.85rem;
+        }
+        
+        .event-list-item .event-list-actions {
+            gap: 5px;
+        }
+        
+        .event-list-item .event-list-actions .btn {
+            padding: 6px 12px;
+            font-size: 0.85rem;
         }
         
         .event-list-item:hover {
@@ -703,12 +721,32 @@
         }
         
         .data-item {
-            padding: 15px;
+            padding: 10px 15px;
             border-bottom: 1px solid #eee;
             display: flex;
             justify-content: space-between;
             align-items: center;
             transition: background-color 0.2s;
+        }
+        
+        .data-item .item-info h4 {
+            margin-bottom: 3px;
+            font-size: 1rem;
+        }
+        
+        .data-item .item-info p {
+            font-size: 0.85rem;
+            margin: 0;
+        }
+        
+        .data-item .item-actions {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .data-item .item-actions .btn {
+            padding: 6px 12px;
+            font-size: 0.85rem;
         }
         
         .data-item:hover {
@@ -2681,10 +2719,16 @@
             <!-- 客户管理页面 -->
             <div class="tab-content" id="clients-tab">
                 <div class="toolbar">
-                    <h2 class="toolbar-title">客户管理</h2>
-                    <button class="btn btn-primary" id="addClientBtn">
-                        <i class="fas fa-plus"></i> 添加客户
-                    </button>
+                    <div style="display: flex; align-items: center; gap: 15px; width: 100%;">
+                        <h2 class="toolbar-title">客户管理</h2>
+                        <div class="search-box" style="flex: 1; max-width: 400px;">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" class="form-control" id="clientsSearchInput" placeholder="搜索客户..." autocomplete="off">
+                        </div>
+                        <button class="btn btn-primary" id="addClientBtn">
+                            <i class="fas fa-plus"></i> 添加客户
+                        </button>
+                    </div>
                 </div>
                 
                 <div class="stats-grid">
@@ -3156,19 +3200,19 @@
                 <!-- 台词分类部分 -->
                 <div class="toolkit-section active" id="lines-section">
                     <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">台词分类管理</h3>
-                            <div style="display: flex; gap: 10px;">
-                                <button class="btn btn-primary" id="addLineCategoryBtn">
+                        <div class="card-header" style="display: flex; flex-direction: column; gap: 8px; align-items: stretch;">
+                            <h3 class="card-title" style="font-size: 1rem; margin-bottom: 0;">台词分类管理</h3>
+                            <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                                <button class="btn btn-primary" id="addLineCategoryBtn" style="flex: 1; min-width: 80px; padding: 6px 10px; font-size: 0.8rem;">
                                     <i class="fas fa-plus"></i> 添加分类
                                 </button>
-                                <button class="btn btn-secondary" id="editLineCategoryBtn">
-                                    <i class="fas fa-edit"></i> 编辑选中分类
+                                <button class="btn btn-secondary" id="editLineCategoryBtn" style="flex: 1; min-width: 80px; padding: 6px 10px; font-size: 0.8rem;">
+                                    <i class="fas fa-edit"></i> 编辑选中
                                 </button>
-                                <button class="btn btn-info" id="importLineFileBtn">
+                                <button class="btn btn-info" id="importLineFileBtn" style="flex: 1; min-width: 80px; padding: 6px 10px; font-size: 0.8rem;">
                                     <i class="fas fa-file-import"></i> 导入文件
                                 </button>
-                                <button class="btn btn-secondary" id="addDirectoryBtn">
+                                <button class="btn btn-secondary" id="addDirectoryBtn" style="flex: 1; min-width: 80px; padding: 6px 10px; font-size: 0.8rem;">
                                     <i class="fas fa-folder-plus"></i> 添加目录
                                 </button>
                             </div>
@@ -5830,6 +5874,15 @@
             
             // 渲染初始客户列表
             renderClientsList();
+            
+            // 添加搜索事件监听
+            const clientsSearchInput = document.getElementById('clientsSearchInput');
+            if (clientsSearchInput) {
+                clientsSearchInput.addEventListener('input', function() {
+                    const searchTerm = this.value;
+                    renderClientsList(searchTerm);
+                });
+            }
         }
         
         // 打开客户模态框
@@ -6141,24 +6194,56 @@
         }
         
         // 渲染客户列表
-        function renderClientsList() {
+        function renderClientsList(searchTerm = '') {
             const clientsList = document.getElementById('clientsList');
             
-            if (AppState.clients.length === 0) {
-                clientsList.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-icon">
-                            <i class="fas fa-user-friends"></i>
+            // 过滤客户
+            let filteredClients = [...AppState.clients];
+            
+            if (searchTerm.trim()) {
+                const term = searchTerm.toLowerCase();
+                filteredClients = filteredClients.filter(client => {
+                    const groomName = client.groomName.toLowerCase();
+                    const brideName = client.brideName.toLowerCase();
+                    const phone = client.phone.toLowerCase();
+                    const weddingDate = client.weddingDate.toLowerCase();
+                    const venue = (client.venue || '').toLowerCase();
+                    
+                    return groomName.includes(term) || 
+                           brideName.includes(term) || 
+                           phone.includes(term) ||
+                           weddingDate.includes(term) ||
+                           venue.includes(term);
+                });
+            }
+            
+            if (filteredClients.length === 0) {
+                if (searchTerm.trim()) {
+                    clientsList.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <i class="fas fa-search"></i>
+                            </div>
+                            <h3>未找到匹配的客户</h3>
+                            <p>尝试使用其他关键词搜索</p>
                         </div>
-                        <h3>暂无客户信息</h3>
-                        <p>点击上方"添加客户"按钮开始记录</p>
-                    </div>
-                `;
+                    `;
+                } else {
+                    clientsList.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <i class="fas fa-user-friends"></i>
+                            </div>
+                            <h3>暂无客户信息</h3>
+                            <p>点击上方"添加客户"按钮开始记录</p>
+                        </div>
+                    `;
+                }
                 return;
             }
             
             // 按婚礼日期排序
-            const sortedClients = [...AppState.clients].sort((a, b) => {
+            const sortedClients = filteredClients.sort((a, b) => {
                 return new Date(a.weddingDate) - new Date(b.weddingDate);
             });
             
