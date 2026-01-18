@@ -2721,9 +2721,12 @@
                 <div class="toolbar">
                     <div style="display: flex; align-items: center; gap: 15px; width: 100%;">
                         <h2 class="toolbar-title">客户管理</h2>
-                        <div class="search-box" style="flex: 1; max-width: 400px;">
-                            <i class="fas fa-search search-icon"></i>
-                            <input type="text" class="form-control" id="clientsSearchInput" placeholder="搜索客户..." autocomplete="off">
+                        <div class="client-search-container" style="flex: 1; max-width: 400px;">
+                            <div class="search-box">
+                                <i class="fas fa-search search-icon"></i>
+                                <input type="text" class="form-control" id="clientsSearchInput" placeholder="搜索客户..." autocomplete="off">
+                            </div>
+                            <div class="client-search-results" id="clientsSearchResults"></div>
                         </div>
                         <button class="btn btn-primary" id="addClientBtn">
                             <i class="fas fa-plus"></i> 添加客户
@@ -2895,82 +2898,82 @@
             
             <!-- 环节规划页面 -->
             <div class="tab-content" id="planning-tab">
-                <div class="toolbar">
-                    <h2 class="toolbar-title" id="planningTitle">婚礼时间轴规划</h2>
-                    <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="toolbar" style="flex-direction: column; align-items: stretch; gap: 10px;">
+                    <h2 class="toolbar-title" id="planningTitle" style="font-size: 1.2rem; margin-bottom: 0;">婚礼时间轴规划</h2>
+                    <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
                         <!-- 优化：客户选择搜索框 -->
-                        <div class="client-search-container" style="width: 300px;">
+                        <div class="client-search-container" style="flex: 1; min-width: 200px;">
                             <div class="search-box">
                                 <i class="fas fa-search search-icon"></i>
-                                <input type="text" class="form-control" id="planClientSearchInput" placeholder="搜索客户..." autocomplete="off">
+                                <input type="text" class="form-control" id="planClientSearchInput" placeholder="搜索客户..." autocomplete="off" style="padding: 8px 12px; font-size: 0.85rem;">
                             </div>
                             <div class="client-search-results" id="planClientSearchResults"></div>
                         </div>
-                        <button class="btn btn-secondary" id="clearPlanningBtn">
+                        <button class="btn btn-secondary" id="clearPlanningBtn" style="padding: 6px 12px; font-size: 0.8rem; min-height: 34px;">
                             <i class="fas fa-undo"></i> 返回初始
                         </button>
-                        <button class="btn btn-primary" id="addCustomStepBtn">
-                            <i class="fas fa-plus"></i> 添加自定义环节
+                        <button class="btn btn-primary" id="addCustomStepBtn" style="padding: 6px 12px; font-size: 0.8rem; min-height: 34px;">
+                            <i class="fas fa-plus"></i> 添加环节
                         </button>
-                        <button class="btn btn-info" id="saveTimelineBtn">
-                            <i class="fas fa-save"></i> 保存时间轴
+                        <button class="btn btn-info" id="saveTimelineBtn" style="padding: 6px 12px; font-size: 0.8rem; min-height: 34px;">
+                            <i class="fas fa-save"></i> 保存
                         </button>
                     </div>
                 </div>
                 
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title" id="planningClientTitle">婚礼时间轴规划</h3>
-                        <span class="badge badge-success">可拖拽排序</span>
+                <div class="card" style="padding: 12px; margin-bottom: 15px;">
+                    <div class="card-header" style="padding: 8px 0; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                        <h3 class="card-title" id="planningClientTitle" style="font-size: 1rem; margin: 0;">婚礼时间轴规划</h3>
+                        <span class="badge badge-success" style="font-size: 0.7rem; padding: 2px 6px;">可拖拽排序</span>
                     </div>
                     
-                    <p style="margin-bottom: 15px; color: var(--gray);">
+                    <p style="margin-bottom: 10px; color: var(--gray); font-size: 0.8rem;">
                         <i class="fas fa-info-circle"></i> 提示：您可以拖拽环节调整顺序，点击时间可编辑
                     </p>
                     
-                    <div class="timeline" id="weddingTimeline">
+                    <div class="timeline" id="weddingTimeline" style="padding-left: 20px;">
                         <!-- 标准时间轴 - 可拖拽 -->
-                        <div class="timeline-item" data-step-id="step-1" data-step-type="standard">
-                            <div class="timeline-time">
-                                <span>15:00 - 15:30</span>
-                                <button class="btn btn-small btn-secondary" onclick="editTimelineTime('step-1')">
+                        <div class="timeline-item" data-step-id="step-1" data-step-type="standard" style="padding: 10px; margin-bottom: 10px;">
+                            <div class="timeline-time" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                                <span style="font-size: 0.85rem; font-weight: 600;">15:00 - 15:30</span>
+                                <button class="btn btn-small btn-secondary" onclick="editTimelineTime('step-1')" style="padding: 4px 8px; font-size: 0.75rem;">
                                     <i class="fas fa-edit"></i>
                                 </button>
                             </div>
-                            <h4>迎宾与签到</h4>
-                            <p>主持人迎宾，引导宾客签到，暖场音乐播放。</p>
+                            <h4 style="font-size: 0.9rem; margin: 0 0 5px 0;">迎宾与签到</h4>
+                            <p style="font-size: 0.8rem; margin: 0 0 8px 0;">主持人迎宾，引导宾客签到，暖场音乐播放。</p>
                             <div class="timeline-actions">
-                                <button class="btn btn-small btn-secondary" onclick="editTimelineContent('step-1')">
+                                <button class="btn btn-small btn-secondary" onclick="editTimelineContent('step-1')" style="padding: 4px 10px; font-size: 0.75rem;">
                                     <i class="fas fa-edit"></i> 编辑内容
                                 </button>
                             </div>
                         </div>
-                        <div class="timeline-item" data-step-id="step-2" data-step-type="standard">
-                            <div class="timeline-time">
-                                <span>15:30 - 15:40</span>
-                                <button class="btn btn-small btn-secondary" onclick="editTimelineTime('step-2')">
+                        <div class="timeline-item" data-step-id="step-2" data-step-type="standard" style="padding: 10px; margin-bottom: 10px;">
+                            <div class="timeline-time" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                                <span style="font-size: 0.85rem; font-weight: 600;">15:30 - 15:40</span>
+                                <button class="btn btn-small btn-secondary" onclick="editTimelineTime('step-2')" style="padding: 4px 8px; font-size: 0.75rem;">
                                     <i class="fas fa-edit"></i>
                                 </button>
                             </div>
-                            <h4>开场白与宾客欢迎</h4>
-                            <p>主持人开场，介绍婚礼主题，欢迎所有来宾。</p>
+                            <h4 style="font-size: 0.9rem; margin: 0 0 5px 0;">开场白与宾客欢迎</h4>
+                            <p style="font-size: 0.8rem; margin: 0 0 8px 0;">主持人开场，介绍婚礼主题，欢迎所有来宾。</p>
                             <div class="timeline-actions">
-                                <button class="btn btn-small btn-secondary" onclick="editTimelineContent('step-2')">
+                                <button class="btn btn-small btn-secondary" onclick="editTimelineContent('step-2')" style="padding: 4px 10px; font-size: 0.75rem;">
                                     <i class="fas fa-edit"></i> 编辑内容
                                 </button>
                             </div>
                         </div>
-                        <div class="timeline-item" data-step-id="step-3" data-step-type="standard">
-                            <div class="timeline-time">
-                                <span>15:40 - 15:50</span>
-                                <button class="btn btn-small btn-secondary" onclick="editTimelineTime('step-3')">
+                        <div class="timeline-item" data-step-id="step-3" data-step-type="standard" style="padding: 10px; margin-bottom: 10px;">
+                            <div class="timeline-time" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                                <span style="font-size: 0.85rem; font-weight: 600;">15:40 - 15:50</span>
+                                <button class="btn btn-small btn-secondary" onclick="editTimelineTime('step-3')" style="padding: 4px 8px; font-size: 0.75rem;">
                                     <i class="fas fa-edit"></i>
                                 </button>
                             </div>
-                            <h4>新郎入场</h4>
-                            <p>新郎登场，与主持人简短互动。</p>
+                            <h4 style="font-size: 0.9rem; margin: 0 0 5px 0;">新郎入场</h4>
+                            <p style="font-size: 0.8rem; margin: 0 0 8px 0;">新郎登场，与主持人简短互动。</p>
                             <div class="timeline-actions">
-                                <button class="btn btn-small btn-secondary" onclick="editTimelineContent('step-3')">
+                                <button class="btn btn-small btn-secondary" onclick="editTimelineContent('step-3')" style="padding: 4px 10px; font-size: 0.75rem;">
                                     <i class="fas fa-edit"></i> 编辑内容
                                 </button>
                             </div>
@@ -6530,6 +6533,56 @@
                     }
                 });
             }
+            
+            // 客户管理页面的客户搜索
+            const clientsSearchInput = document.getElementById('clientsSearchInput');
+            const clientsSearchResults = document.getElementById('clientsSearchResults');
+            
+            if (clientsSearchInput) {
+                // 当搜索框获得焦点时显示所有客户
+                clientsSearchInput.addEventListener('focus', function() {
+                    showAllClientsInSearchResults(clientsSearchResults, 'clients');
+                });
+                
+                clientsSearchInput.addEventListener('input', function() {
+                    const searchTerm = this.value.toLowerCase().trim();
+                    
+                    if (searchTerm === '') {
+                        showAllClientsInSearchResults(clientsSearchResults, 'clients');
+                        return;
+                    }
+                    
+                    // 搜索客户
+                    const results = AppState.clients.filter(client => {
+                        const groomName = client.groomName.toLowerCase();
+                        const brideName = client.brideName.toLowerCase();
+                        const phone = client.phone.toLowerCase();
+                        const weddingDate = client.weddingDate;
+                        const venue = (client.venue || '').toLowerCase();
+                        
+                        return groomName.includes(searchTerm) || 
+                               brideName.includes(searchTerm) || 
+                               phone.includes(searchTerm) ||
+                               weddingDate.includes(searchTerm) ||
+                               venue.includes(searchTerm);
+                    });
+                    
+                    if (results.length === 0) {
+                        clientsSearchResults.innerHTML = '<div class="client-search-result-item">未找到匹配的客户</div>';
+                        clientsSearchResults.style.display = 'block';
+                        return;
+                    }
+                    
+                    renderClientSearchResults(results, clientsSearchResults, 'clients');
+                });
+                
+                // 点击页面其他区域关闭搜索结果
+                document.addEventListener('click', function(e) {
+                    if (!clientsSearchInput.contains(e.target) && !clientsSearchResults.contains(e.target)) {
+                        clientsSearchResults.style.display = 'none';
+                    }
+                });
+            }
         }
         
         // 显示所有客户在搜索结果中
@@ -6616,6 +6669,13 @@
                             
                             // 加载该客户的环节规划
                             loadClientPlanning(clientId);
+                        } else if (context === 'clients') {
+                            // 客户管理页面：点击客户后直接编辑
+                            document.getElementById('clientsSearchInput').value = `${client.groomName} & ${client.brideName}`;
+                            resultsContainer.style.display = 'none';
+                            
+                            // 跳转到客户编辑页面
+                            editClient(clientId);
                         }
                     }
                 });
