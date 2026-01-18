@@ -792,9 +792,15 @@
             /* 优化头部按钮 */
             .app-title div {
                 display: grid;
-                grid-template-columns: repeat(2, 1fr);
-                gap: 8px;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 6px;
                 width: 100%;
+            }
+            
+            .app-title .btn {
+                padding: 8px 12px;
+                font-size: 0.85rem;
+                min-height: 38px;
             }
             
             /* 优化导航菜单 - 增强横向滚动体验 */
@@ -888,14 +894,23 @@
             }
             
             .calendar-nav {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 8px;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                gap: 10px;
             }
             
+            /* 优化上月下月按钮 */
             .calendar-nav .btn {
-                width: 100%;
-                justify-content: center;
+                width: auto;
+                padding: 6px 12px;
+                font-size: 0.85rem;
+                min-height: 36px;
+            }
+            
+            #currentMonth {
+                margin: 0;
+                font-size: 0.9rem;
             }
             
             /* 列表项优化 */
@@ -931,7 +946,33 @@
             }
             
             .stat-card {
+                padding: 12px;
+                border-radius: 8px;
+            }
+            
+            .stat-value {
+                font-size: 1.5rem;
+            }
+            
+            .stat-label {
+                font-size: 0.85rem;
+            }
+            
+            /* 优化数据备份区域 */
+            .backup-section {
                 padding: 15px;
+            }
+            
+            .backup-buttons {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .backup-buttons .btn {
+                padding: 10px 16px;
+                font-size: 0.9rem;
+                min-height: 40px;
             }
             
             /* 模态框优化 */
@@ -1929,7 +1970,35 @@
             
             /* 优化工具栏 */
             .toolbar {
+                flex-direction: column;
+                align-items: stretch;
                 gap: 10px;
+            }
+            
+            .toolbar > div {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                align-items: center;
+            }
+            
+            /* 优化视图切换和年份切换按钮 */
+            .view-toggle, .year-toggle {
+                margin: 0;
+                flex: 1;
+                min-width: 120px;
+            }
+            
+            .view-btn, .year-btn {
+                padding: 6px 12px;
+                font-size: 0.85rem;
+            }
+            
+            /* 优化添加档期按钮 */
+            #addEventBtn {
+                padding: 8px 16px;
+                font-size: 0.85rem;
+                min-height: 38px;
             }
             
             /* 优化列表项 */
@@ -10752,6 +10821,43 @@
             }
         }
         
+        // 删除内容项函数
+        window.deleteContentItem = function(categoryId, directoryName, index) {
+            if (!confirm('确定要删除这个内容项吗？删除后将无法恢复。')) {
+                return;
+            }
+            
+            // 找到对应的分类
+            const category = AppState.lineCategories.find(c => c.id === categoryId);
+            if (!category) return;
+            
+            let updated = false;
+            
+            if (directoryName) {
+                // 删除目录内的内容
+                const directory = category.directories.find(dir => dir.id === directoryName);
+                if (directory && directory.items && directory.items[index]) {
+                    directory.items.splice(index, 1);
+                    updated = true;
+                }
+            } else {
+                // 删除直接内容
+                if (category.items && category.items[index]) {
+                    category.items.splice(index, 1);
+                    updated = true;
+                }
+            }
+            
+            if (updated) {
+                // 保存数据到本地存储
+                localStorage.setItem('lineCategories', JSON.stringify(AppState.lineCategories));
+                // 重新渲染内容
+                viewCategoryItems(categoryId);
+                // 重新渲染分类列表
+                renderLineCategories();
+            }
+        }
+        
         // 重写查看内容函数，显示具体内容
         window.viewCategoryItems = function(categoryId) {
             const category = AppState.lineCategories.find(c => c.id === categoryId);
@@ -10789,7 +10895,12 @@
                     const id = directoryName ? `dir-item-${directoryName}-${index}` : `content-item-${index}`;
                     html += `
                         <div class="content-item" data-item-id="${id}" data-title="${item.title}" data-content="${item.content}">
-                            <h4 id="${id}" style="margin-bottom: 10px; color: var(--primary);">${item.title}</h4>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <h4 id="${id}" style="margin: 0; color: var(--primary);">${item.title}</h4>
+                                <button class="btn btn-small btn-danger" onclick="deleteContentItem('${category.id}', '${directoryName || ''}', ${index})" title="删除内容">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
                             <div style="line-height: 1.8; color: var(--dark); white-space: pre-wrap;">${item.content}</div>
                             <div style="margin-top: 10px; font-size: 0.8rem; color: var(--gray);">
                                 添加时间: ${new Date(item.createdAt).toLocaleString()}
@@ -10875,9 +10986,16 @@
                         hasResults = true;
                         searchResultsHtml += '<h3>直接内容 (匹配: ' + matchingDirectItems.length + ')</h3>';
                         matchingDirectItems.forEach((item, index) => {
+                            // 找到原始索引
+                            const originalIndex = originalContent.directItems.findIndex(i => i.title === item.title && i.content === item.content);
                             searchResultsHtml += `
                                 <div class="content-item" data-item-id="content-item-${index}">
-                                    <h4 id="content-item-${index}" style="margin-bottom: 10px; color: var(--primary);">${highlightText(item.title, keyword)}</h4>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                        <h4 id="content-item-${index}" style="margin: 0; color: var(--primary);">${highlightText(item.title, keyword)}</h4>
+                                        <button class="btn btn-small btn-danger" onclick="deleteContentItem('${category.id}', '', ${originalIndex})" title="删除内容">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
                                     <div style="line-height: 1.8; color: var(--dark); white-space: pre-wrap;">${highlightText(item.content, keyword)}</div>
                                     <div style="margin-top: 10px; font-size: 0.8rem; color: var(--gray);">
                                         添加时间: ${new Date(item.createdAt).toLocaleString()}
@@ -10900,9 +11018,16 @@
                             hasResults = true;
                             searchResultsHtml += `<h3>${dir.name} (匹配: ${matchingDirItems.length})</h3>`;
                             matchingDirItems.forEach((item, index) => {
+                                // 找到原始索引
+                                const originalIndex = dir.items.findIndex(i => i.title === item.title && i.content === item.content);
                                 searchResultsHtml += `
                                     <div class="content-item" data-item-id="dir-item-${dir.id}-${index}">
-                                        <h4 id="dir-item-${dir.id}-${index}" style="margin-bottom: 10px; color: var(--primary);">${highlightText(item.title, keyword)}</h4>
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                            <h4 id="dir-item-${dir.id}-${index}" style="margin: 0; color: var(--primary);">${highlightText(item.title, keyword)}</h4>
+                                            <button class="btn btn-small btn-danger" onclick="deleteContentItem('${category.id}', '${dir.id}', ${originalIndex})" title="删除内容">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
                                         <div style="line-height: 1.8; color: var(--dark); white-space: pre-wrap;">${highlightText(item.content, keyword)}</div>
                                         <div style="margin-top: 10px; font-size: 0.8rem; color: var(--gray);">
                                             添加时间: ${new Date(item.createdAt).toLocaleString()}
